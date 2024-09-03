@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 def relatorio_Dda():
-    df = pd.read_excel('relatorio_integracao/Resultado.xls')
+    df = pd.read_excel('./database/modular/relatorio_integracao/Resultado.xls')
 
     filtro_colunas = df[(df['Status'] == 'Ativo') & (df['Pós venda'] == 'Sim') & (df['Participação DDA'] == 'Não')][['Aluno', 'Telefone Celular']]
 
@@ -12,13 +12,12 @@ def relatorio_Dda():
 
     csv = filtro_colunas.to_csv(index=False, encoding='utf-8', sep=';')
 
-    print(filtro_colunas)
+    st.title("Integração alunos DDA")
 
     st.write("""
-        ##Gráfico do App
-        O gráfico da quantidade de contatos.
+        Tabela de alunos de Pós venda, sem DDA.
     """)
-
+    
     st.download_button(
         label="Baixar CSV",
         data=csv.encode('utf-8'),
@@ -26,6 +25,6 @@ def relatorio_Dda():
         mime='text/csv'
     )
 
-    # st.table(filtro_colunas)
-    # st.dataframe(filtro_colunas)
     st.write(filtro_colunas)
+
+relatorio_Dda()
