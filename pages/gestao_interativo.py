@@ -18,6 +18,7 @@ def assiduidade_Interativo():
     st.title("""
             Relatório de retenção interativo.
         """)
+    
     presenca = ranking_frequentes['Presenças'].sum()
     falta = ranking_frequentes['Faltas'].sum()
 
@@ -44,4 +45,18 @@ def assiduidade_Interativo():
     
     st.write(ranking_frequentes)
 
+def entrega_Modulos():
+    st.title('Relatório de entrega de apostilas')
+    material = pd.read_excel('database/interativo/estoque_modulos/modulos.xlsx', header=1)
+    st.write(material)
+    modulos = list(material.columns)
+    modulos.remove('ESTUDANTES') 
+    modulo = st.selectbox("Selecione o Módulo", modulos)
+    nao_analisados = material[modulo].isnull().sum()
+    st.write("Módulos Não Analisados: ", nao_analisados)
+    st.subheader("Atualizar Status dos Estudantes Não Analisados: ")
+    filtro = material[modulo].isnull()
+    st.write(material[filtro][['ESTUDANTES', modulo]])
+
+entrega_Modulos()
 assiduidade_Interativo()
