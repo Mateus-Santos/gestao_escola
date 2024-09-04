@@ -11,7 +11,7 @@ def assiduidade_Interativo():
 
     ranking_frequentes['Total'] = ranking_frequentes['Presenças'] + ranking_frequentes['Faltas']
 
-    ranking_frequentes['Frequencia'] = ((ranking_frequentes['Total'] / ranking_frequentes['Presenças'])).apply(lambda x: f"{x:.2%}")
+    ranking_frequentes['Frequencia'] = ((ranking_frequentes['Presenças'] / ranking_frequentes['Total'])).apply(lambda x: f"{x:.2%}")
     ranking_frequentes['Frequencia'] = ranking_frequentes['Frequencia'].replace(['inf%', '-inf%'], '0%')
     ranking_frequentes = ranking_frequentes.sort_values(by='Frequencia', ascending=False)
 
@@ -50,7 +50,8 @@ def entrega_Modulos():
     material = pd.read_excel('database/interativo/estoque_modulos/modulos.xlsx', header=1)
     st.write(material)
     modulos = list(material.columns)
-    modulos.remove('ESTUDANTES') 
+    remover_itens = ['ESTUDANTES', 'Unnamed: 26', 'Unnamed: 30', 'X', 'O', 'N']
+    modulos = [item for item in material if item not in remover_itens]
     modulo = st.selectbox("Selecione o Módulo", modulos)
     nao_analisados = material[modulo].isnull().sum()
     st.write("Módulos Não Analisados: ", nao_analisados)
