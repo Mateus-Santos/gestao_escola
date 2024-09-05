@@ -3,3 +3,5 @@
 *.xlsx
 *.xls
 *.csv
+client_secret.json
+token.json

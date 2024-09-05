@@ -5,11 +5,7 @@ def relatorio_Dda():
     df = pd.read_excel('./database/modular/relatorio_integracao/Resultado.xls')
 
     filtro_colunas = df[(df['Status'] == 'Ativo') & (df['Pós venda'] == 'Sim') & (df['Participação DDA'] == 'Não')][['Aluno', 'Telefone Celular']]
-
-    filtro_colunas.to_excel('listasender.xlsx', index=False)
-    # Converter o DataFrame para CSV
-    filtro_colunas.to_csv('listasender.csv', index=False, encoding='utf-8', sep=';')
-
+    
     csv = filtro_colunas.to_csv(index=False, encoding='utf-8', sep=';')
 
     st.title("Integração alunos DDA")
