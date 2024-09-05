@@ -45,19 +45,23 @@ def assiduidade_Interativo():
     
     st.write(ranking_frequentes)
 
+def tratamento_Modulos(material):
+    entrega_Modulos()
+
 def entrega_Modulos():
     st.title('Relatório de entrega de apostilas')
     material = pd.read_excel('database/interativo/estoque_modulos/modulos.xlsx', header=1)
-    st.write(material)
-    modulos = list(material.columns)
+    #Removendo colunas desnecessarias.
     remover_itens = ['ESTUDANTES', 'Unnamed: 26', 'Unnamed: 30', 'X', 'O', 'N']
-    modulos = [item for item in material if item not in remover_itens]
-    modulo = st.selectbox("Selecione o Módulo", modulos)
-    nao_analisados = material[modulo].isnull().sum()
-    st.write("Módulos Não Analisados: ", nao_analisados)
-    st.subheader("Atualizar Status dos Estudantes Não Analisados: ")
-    filtro = material[modulo].isnull()
-    st.write(material[filtro][['ESTUDANTES', modulo]])
+    material = material.drop(columns=remover_itens)
+    st.write(material)
+    listar_modulos = [item for item in material if item not in remover_itens]
+    #Realizando contagem de módulos
+    nao_entregues = 'O'
+    qtd_nao_entregues = material.apply(lambda col: col.value_counts().get(nao_entregues, 0))
+    #Tabela de quantidade de módulos restantes.
+    st.write("Relatório de módulos")
+    st.write(qtd_nao_entregues)
 
 entrega_Modulos()
 assiduidade_Interativo()
