@@ -9,7 +9,7 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
-def main():
+def local_Sheets_Modulos():
   creds = None
   if os.path.exists("token.json"):
     creds = Credentials.from_authorized_user_file("token.json", SCOPES)
@@ -30,9 +30,9 @@ def main():
 
   # Call the Sheets API
   sheet = service.spreadsheets()
-  result = (sheet.values().get(spreadsheetId='1ibfg0lcLzTljLn_yZiFbTAioTAwSzekuW_uTdv5QNLk', range="modulos!A2:Z172").execute())
+  result = (sheet.values().get(spreadsheetId='1ibfg0lcLzTljLn_yZiFbTAioTAwSzekuW_uTdv5QNLk', range="modulos!A2:Z1000").execute())
   values = result.get("values", [])
-  print(values)
+  return values
 
 if __name__ == "__main__":
-  main()
+  local_Sheets_Modulos()

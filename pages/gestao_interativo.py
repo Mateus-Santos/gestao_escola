@@ -1,6 +1,12 @@
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import os
+import sys
+import io
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from apis.api_modulos import local_Sheets_Modulos
 
 def assiduidade_Interativo():
     assiduidade = pd.read_excel('database/interativo/retencao/setembro.xls')
@@ -45,23 +51,37 @@ def assiduidade_Interativo():
     
     st.write(ranking_frequentes)
 
-def tratamento_Modulos(material):
-    entrega_Modulos()
-
 def entrega_Modulos():
     st.title('Relatório de entrega de apostilas')
-    material = pd.read_excel('database/interativo/estoque_modulos/modulos.xlsx', header=1)
-    #Removendo colunas desnecessarias.
-    remover_itens = ['ESTUDANTES', 'Unnamed: 26', 'Unnamed: 30', 'X', 'O', 'N']
-    material = material.drop(columns=remover_itens)
-    st.write(material)
-    listar_modulos = [item for item in material if item not in remover_itens]
-    #Realizando contagem de módulos
-    nao_entregues = 'O'
-    qtd_nao_entregues = material.apply(lambda col: col.value_counts().get(nao_entregues, 0))
-    #Tabela de quantidade de módulos restantes.
-    st.write("Relatório de módulos")
-    st.write(qtd_nao_entregues)
+    gsheets = local_Sheets_Modulos()
+    colunas = gsheets[0]
+    material = pd.DataFrame(data=gsheets, columns=colunas)
+    material = material[1:].reset_index(drop=True)
+    qtd_nao_entregues = material.apply(lambda col: col.value_counts().get('N', 0))
+    excel_buffer = io.BytesIO()
+    material.to_excel(excel_buffer, index=False, engine='xlsxwriter')
+    excel_buffer.seek(0)
+    st.download_button(
+        label="Baixar Lista Completa",
+        data=excel_buffer,
+        file_name='Lista de Modulos.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        key='material'
+    )
+    excel_buffer.truncate(0)
+    excel_buffer.seek(0)
+    st.dataframe(material)
+    qtd_nao_entregues.to_excel(excel_buffer, index=True, engine='xlsxwriter')
+    excel_buffer.seek(0)
+    st.write('Lista com a quantidade de Módulos para solicitar')
+    st.download_button(
+        label="Relatório de Módulos a Solicitar",
+        data=excel_buffer,
+        file_name='Relatorio de Modulos a Solicitar.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        key='qtd_nao_entregues'
+    )
+    st.dataframe(material.apply(lambda col: col.value_counts().get('N', 0)))
 
 entrega_Modulos()
 assiduidade_Interativo()
