@@ -17,7 +17,7 @@ def assiduidade_Interativo():
 
     ranking_frequentes['Total'] = ranking_frequentes['Presenças'] + ranking_frequentes['Faltas']
 
-    ranking_frequentes['Frequencia'] = ((ranking_frequentes['Presenças'] / ranking_frequentes['Total'])).apply(lambda x: f"{x:.2%}")
+    ranking_frequentes['Frequencia'] = (ranking_frequentes['Presenças'] / ranking_frequentes['Total']) * 100
     ranking_frequentes['Frequencia'] = ranking_frequentes['Frequencia'].replace(['inf%', '-inf%'], '0%')
     ranking_frequentes = ranking_frequentes.sort_values(by='Frequencia', ascending=False)
 
@@ -57,7 +57,7 @@ def entrega_Modulos():
     colunas = gsheets[0]
     material = pd.DataFrame(data=gsheets, columns=colunas)
     material = material[1:].reset_index(drop=True)
-    qtd_nao_entregues = material.apply(lambda col: col.value_counts().get('N', 0))
+    qtd_nao_entregues = material.apply(lambda col: col.value_counts().get('O', 0))
     excel_buffer = io.BytesIO()
     material.to_excel(excel_buffer, index=False, engine='xlsxwriter')
     excel_buffer.seek(0)
@@ -75,13 +75,13 @@ def entrega_Modulos():
     excel_buffer.seek(0)
     st.write('Lista com a quantidade de Módulos para solicitar')
     st.download_button(
-        label="Relatório de Módulos a Solicitar",
+        label="Baixar Relatório de Módulos",
         data=excel_buffer,
-        file_name='Relatorio de Modulos a Solicitar.xlsx',
+        file_name='Relatorio_de_Modulos_a_Entregar.xlsx',
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         key='qtd_nao_entregues'
     )
-    st.dataframe(material.apply(lambda col: col.value_counts().get('N', 0)))
+    st.dataframe(qtd_nao_entregues)
 
 entrega_Modulos()
 assiduidade_Interativo()
