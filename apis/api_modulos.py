@@ -30,7 +30,7 @@ def local_Sheets_Modulos():
 
   # Call the Sheets API
   sheet = service.spreadsheets()
-  result = (sheet.values().get(spreadsheetId='1ibfg0lcLzTljLn_yZiFbTAioTAwSzekuW_uTdv5QNLk', range="modulos!A2:Z1000").execute())
+  result = (sheet.values().get(spreadsheetId='1ibfg0lcLzTljLn_yZiFbTAioTAwSzekuW_uTdv5QNLk', range="modulos!A2:AA1000").execute())
   values = result.get("values", [])
   return values
 
