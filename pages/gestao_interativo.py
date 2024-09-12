@@ -83,5 +83,19 @@ def entrega_Modulos():
     )
     st.dataframe(qtd_nao_entregues)
 
+def news_alunos(novos_alunos):
+    if novos_alunos is not None:
+        novos_alunos_df = pd.read_excel(novos_alunos)
+        gsheets = local_Sheets_Modulos()
+        colunas = gsheets[0]
+        material = pd.DataFrame(data=gsheets, columns=colunas)
+        material = material[1:].reset_index(drop=True)
+        filtro = ~novos_alunos_df['Aluno'].isin(material['ESTUDANTES'])
+        valores_nao_encontrados = novos_alunos_df['Aluno'][filtro]
+        return st.write(valores_nao_encontrados)
+
 entrega_Modulos()
 assiduidade_Interativo()
+st.title("Insira novos alunos para a analise:")
+novos_alunos = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="novos_alunos")
+news_alunos(novos_alunos)
