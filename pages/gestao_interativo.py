@@ -7,6 +7,7 @@ import io
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from apis.api_modulos import local_Sheets_Modulos
+from apis.api_modulos import update_modulos
 
 def assiduidade_Interativo():
     assiduidade = pd.read_excel('database/interativo/retencao/setembro.xls')
@@ -87,12 +88,23 @@ def news_alunos(novos_alunos):
     if novos_alunos is not None:
         novos_alunos_df = pd.read_excel(novos_alunos)
         gsheets = local_Sheets_Modulos()
+        #Corrigindo colunas do gsheets;
         colunas = gsheets[0]
         material = pd.DataFrame(data=gsheets, columns=colunas)
         material = material[1:].reset_index(drop=True)
+        #Filtro invertido
         filtro = ~novos_alunos_df['Aluno'].isin(material['ESTUDANTES'])
         valores_nao_encontrados = novos_alunos_df['Aluno'][filtro]
-        return st.write(valores_nao_encontrados)
+        # Criar um novo DataFrame com valores não encontrados para adicionar ao final de df1
+        new_material = pd.DataFrame({'ESTUDANTES': valores_nao_encontrados})
+        # Adicionar os valores não encontrados ao final de 'coluna1' de df1
+        material = pd.concat([material, new_material], ignore_index=True)
+        material = material.fillna('A')
+        st.write('Novos nomes:')
+        st.write(valores_nao_encontrados)
+        envio = material.values.tolist()  # Cria uma lista de listas a partir do DataFrame
+        update_modulos(envio)
+        return st.write(material)
 
 entrega_Modulos()
 assiduidade_Interativo()
