@@ -1,6 +1,8 @@
 import pandas as pd
 import streamlit as st
 import os
+from apis.api_modulos import update_modulos
+from apis.api_modulos import local_Sheets_Modulos
 
 # Mensagem Principal.
 st.title("Bem-vindo a tela de relatórios do Instituto Mix.")
@@ -16,6 +18,27 @@ def update_database(caminho_arquivo, uploaded_file):
             file.write(uploaded_file.getbuffer())
         st.success(f"O arquivo foi substituído com sucesso em {caminho_arquivo}")
 
+def news_alunos(novos_alunos):
+    if novos_alunos is not None:
+        novos_alunos_df = pd.read_excel(novos_alunos)
+        gsheets = local_Sheets_Modulos()
+        #Corrigindo colunas do gsheets;
+        colunas = gsheets[0]
+        material = pd.DataFrame(data=gsheets, columns=colunas)
+        material = material[1:].reset_index(drop=True)
+        #Filtro invertido
+        filtro = ~novos_alunos_df['Aluno'].isin(material['ESTUDANTES'])
+        valores_nao_encontrados = novos_alunos_df['Aluno'][filtro]
+        # Criar um novo DataFrame com valores não encontrados para adicionar ao final de df1
+        new_material = pd.DataFrame({'ESTUDANTES': valores_nao_encontrados})
+        # Adicionar os valores não encontrados ao final de 'coluna1' de df1
+        material = pd.concat([material, new_material], ignore_index=True)
+        material = material.fillna('A')
+        st.write('Novos nomes:')
+        st.write(valores_nao_encontrados)
+        envio = material.values.tolist()  # Cria uma lista de listas a partir do DataFrame
+        update_modulos(envio)
+        return st.write(material)
 # Mensagem para atualizar a base de dados integração DDA.
 st.title("Atualize a base de dados do relatório de integração DDA.")
 base_relatorio_dda = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="base_relatorio_dda")
@@ -24,3 +47,7 @@ update_database('./database/modular/relatorio_integracao/Resultado.xls', base_re
 st.title("Atualize a base de dados do relatório de assiduidade interativo.")
 base_assiduidade_interativo = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="base_assiduidade_interativo")
 update_database('./database/interativo/retencao/setembro.xls', base_assiduidade_interativo)
+
+st.title("Atualize base de dados com novos alunos para a análise de módulos:")
+novos_alunos = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="novos_alunos")
+news_alunos(novos_alunos)
