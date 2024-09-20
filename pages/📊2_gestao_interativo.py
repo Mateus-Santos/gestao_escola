@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import os
 import sys
 
+from main import update_database
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def assiduidade_Interativo():
@@ -49,4 +51,7 @@ def assiduidade_Interativo():
     
     st.write(ranking_frequentes)
 
+st.title("Atualize a base de dados do relatório de assiduidade interativo.")
+base_assiduidade_interativo = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="base_assiduidade_interativo")
+update_database('./database/interativo/retencao/setembro.xls', base_assiduidade_interativo)
 assiduidade_Interativo()

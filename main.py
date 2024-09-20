@@ -40,10 +40,6 @@ def news_alunos(novos_alunos):
         update_modulos(envio)
         return st.write(material)
 
-st.title("Atualize a base de dados do relatório de assiduidade interativo.")
-base_assiduidade_interativo = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="base_assiduidade_interativo")
-update_database('./database/interativo/retencao/setembro.xls', base_assiduidade_interativo)
-
 st.title("Atualize base de dados com novos alunos para a análise de módulos:")
 novos_alunos = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="novos_alunos")
 news_alunos(novos_alunos)
