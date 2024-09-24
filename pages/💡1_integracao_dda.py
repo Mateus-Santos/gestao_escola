@@ -27,6 +27,6 @@ def relatorio_Dda():
         mime='text/csv'
     )
 
-    st.write(filtro_colunas)
+    st.dataframe(filtro_colunas, hide_index=True)
 
 relatorio_Dda()

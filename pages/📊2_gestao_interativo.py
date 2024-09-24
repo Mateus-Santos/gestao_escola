@@ -49,9 +49,30 @@ def assiduidade_Interativo():
             Ranking alunos mais frequentes interativo.
         """)
     
-    st.write(ranking_frequentes)
+    st.dataframe(ranking_frequentes, hide_index=True)
+
+def faltantes_retencao():
+    assiduidade = pd.read_excel('database/interativo/retencao/setembro.xls')
+    assiduidade = assiduidade.drop(columns=['Contato Emergência 1', 'Contato Emergência 2', 
+                                            'Contato Emergência 3', 'Contato Emergência 4', 
+                                            'Contrato', 'Data', 'Reposições', 'Presenças'])
+    faltantes = assiduidade[['Nome Aluno']]
+    faltantes = assiduidade[(assiduidade['Status'] == 'Ativo') & (assiduidade['Faltas'] >= 2)]
+    faltantes = faltantes.drop(columns=['Status'])
+    st.title("""
+            Lista dos alunos que mais faltaram:
+        """)
+    csv = faltantes.to_csv(index=False, encoding='utf-8', sep=';')
+    st.download_button(
+        label="Baixar planilha de faltantes CSV",
+        data=csv.encode('utf-8'),
+        file_name='retencao_interativo.csv',
+        mime='text/csv'
+    )
+    st.dataframe(faltantes, hide_index=True)
 
 st.title("Atualize a base de dados do relatório de assiduidade interativo.")
 base_assiduidade_interativo = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="base_assiduidade_interativo")
 update_database('./database/interativo/retencao/setembro.xls', base_assiduidade_interativo)
 assiduidade_Interativo()
+faltantes_retencao()

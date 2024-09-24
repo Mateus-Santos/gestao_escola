@@ -91,7 +91,7 @@ def exibir_vagas():
     nova_ordem_colunas = colunas[-2:] + colunas[:-2]
     quadro = new_quadro[nova_ordem_colunas]
     st.title("Vagas Disponíveis - Interativo")
-    st.dataframe(quadro)
+    st.dataframe(quadro, hide_index=True)
     quadro['HORÁRIO INÍCIO'] = quadro['HORÁRIO INÍCIO'].apply(lambda x: x.strftime('%H:%M:%S'))
     quadro['HORÁRIO FIM'] = quadro['HORÁRIO FIM'].apply(lambda x: x.strftime('%H:%M:%S'))
     envio = quadro.values.tolist()
