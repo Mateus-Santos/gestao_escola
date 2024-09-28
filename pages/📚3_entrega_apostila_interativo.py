@@ -32,6 +32,6 @@ def entrega_Modulos():
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         key='qtd_nao_entregues'
     )
-    st.dataframe(qtd_nao_entregues, hide_index=True)
+    st.dataframe(qtd_nao_entregues)
 
 entrega_Modulos()

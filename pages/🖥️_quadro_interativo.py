@@ -59,6 +59,9 @@ def exibir_vagas():
         quadro[dia][time(13, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(13, 0, 0)) & (agendamento['INICIO'] < time(15, 0, 0))]['DIA'].value_counts().sum()
         quadro[dia][time(15, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(15, 0, 0)) & (agendamento['INICIO'] < time(17, 0, 0))]['DIA'].value_counts().sum()
         quadro[dia][time(18, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(18, 0, 0)) & (agendamento['INICIO'] < time(20, 0, 0))]['DIA'].value_counts().sum()
+        if dia == 'SEX':
+            quadro[dia][time(13, 0, 0)] = -1
+            quadro[dia][time(15, 0, 0)] = -1
         if dia == 'SEX' or dia == 'QUI':
             quadro[dia][time(18, 0, 0)] = -1
         if dia == 'SAB':
