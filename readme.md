@@ -1,6 +1,6 @@
-<p align="center"><a href="https://docs.streamlit.io/get-started/installation" target="_blank"><img src="https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-darktext.png" width="400" alt="Streamlit Logo"></a></p>
+<p align="center"><a href="https://docs.streamlit.io/get-started/installation" target="_blank"><img src="https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-darktext.png" width="200" height="200" alt="Streamlit Logo"></a></p>
 
-<p align="center"><a href="https://pandas.pydata.org/docs/getting_started/install.html" target="_blank"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-NEICv1aGTvDRncdvM_fXoah5SNWx4pXAvg&s" width="400" alt="Pandas Logo"></a></p>
+<p align="center"><a href="https://pandas.pydata.org/docs/getting_started/install.html" target="_blank"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-NEICv1aGTvDRncdvM_fXoah5SNWx4pXAvg&s" width="200" height="200" alt="Pandas Logo"></a></p>
 
 # Passo a passo:
 
