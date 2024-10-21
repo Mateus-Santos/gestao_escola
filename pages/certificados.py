@@ -9,6 +9,21 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+def solicitacoes_digitais(digitais_mes_novo, planilha):
+    digitais_mes_novo = digitais_mes_novo[(digitais_mes_novo['tipo_certificado'] == 'Digital')]
+    digitais_mes_novo = digitais_mes_novo.drop(columns=['data_fim', 'data_cadastro', 'tipo_certificado', 'email', 'numero', 'formatura', 'requisitos'])
+    digitais_mes_novo = digitais_mes_novo.rename(columns={'nome': 'NOME', 'curso': 'CURSO'})
+    digitais_mes_novo.insert(1, 'CÓDIGO', None)
+    digitais_mes_old = pd.DataFrame(base_certificados(planilha))
+    digitais_mes_old = digitais_mes_old.rename(columns={0: 'NOME', 1: 'CÓDIGO', 2: 'CURSO', 3: 'ASSINATURA_TERMO'})
+    st.dataframe(digitais_mes_novo)
+    digitais_mes_atualizado = pd.concat([digitais_mes_old, digitais_mes_novo], ignore_index=True).drop_duplicates(subset=['NOME', 'CURSO'], keep='first')
+    envio = digitais_mes_atualizado.values.tolist()
+    st.title("Planilha dos certificados Digitais")
+    return update_base_certificados(planilha, envio)
+
+
 def solicitacoes_impressos(impressos_mes_novo, planilha):
     impressos_mes_novo = impressos_mes_novo[(impressos_mes_novo['tipo_certificado'] == 'Impresso')]
     impressos_mes_novo = impressos_mes_novo.drop(columns=['data_cadastro', 'tipo_certificado', 'email', 'numero', 'formatura', 'requisitos'])
@@ -24,7 +39,7 @@ def solicitacoes_impressos(impressos_mes_novo, planilha):
                                                         6: 'CH', 7: 'CIDADE'})
     impressos_mes_atualizado = pd.concat([impressos_mes_old, impressos_mes_novo], ignore_index=True).drop_duplicates(subset=['NOME', 'CURSO'], keep='first')
     envio = impressos_mes_atualizado.values.tolist()
-    return st.dataframe(update_base_certificados(planilha, envio))
+    return update_base_certificados(planilha, envio)
 
 def exibir_certificados_mes(ano_selecionado, mes_selecionado):
     planilha = str(ano_selecionado) + str(mes_selecionado)
@@ -40,9 +55,11 @@ def exibir_certificados_mes(ano_selecionado, mes_selecionado):
     formulario_forms['data_cadastro'] = pd.to_datetime(formulario_forms['data_cadastro'])
     formulario_forms['data_cadastro'] = formulario_forms['data_cadastro'].dt.strftime('%d-%m-%y')
     formulario_forms_filtro = formulario_forms[(formulario_forms['data_cadastro'] >= f'1/10/{ano_selecionado}') & (formulario_forms['data_cadastro'] <= f'31/10/{ano_selecionado}')]
-    st.title("Certificados impressos:")
-    solicitacoes_impressos(formulario_forms_filtro, planilha)
-    return "Certificados"
+    st.title(f"Certificados {mes_selecionado} impressos:")
+    st.dataframe(solicitacoes_impressos(formulario_forms_filtro, planilha))
+    st.title(f"Certificados {mes_selecionado} Digital:")
+    st.dataframe(solicitacoes_digitais(formulario_forms_filtro, 'solicitados_digital'))
+    return 1
 
 
 st.title("Relatório de Certificados:")
