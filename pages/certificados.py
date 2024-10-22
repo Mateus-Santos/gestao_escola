@@ -32,6 +32,18 @@ def adicionar_modulos_ch(impressos_mes_atualizado):
     impressos_mes_atualizado['CH'] = impressos_mes_atualizado['CURSO'].map(grade.set_index('CURSO')['CH'])
     return impressos_mes_atualizado
     
+def adicionar_formatura(formatura_forms, planilha):
+    old_formatura_df = pd.DataFrame(base_certificados(planilha))
+    old_formatura_df = old_formatura_df.rename(columns={0: 'nome', 1: 'curso', 2: 'numero'})
+    old_formatura_df = old_formatura_df[['nome', 'curso', 'numero']]
+    formatura_forms = formatura_forms.drop(columns=['data_fim', 'data_cadastro', 'tipo_certificado', 'email', 'requisitos'])
+    formatura_forms = formatura_forms[(formatura_forms['formatura'] == 'Sim')]
+    news_formatura_forms = pd.DataFrame(pd.concat([old_formatura_df, formatura_forms], ignore_index=True).drop_duplicates(subset=['nome', 'curso', 'numero'], keep='first'))
+    news_formatura_forms = news_formatura_forms.drop(columns=['formatura'])
+    news_formatura_forms.fillna('', inplace=True)
+    envio = news_formatura_forms.values.tolist()
+    st.title("Planilha dos interessados em formatura:")
+    return update_base_certificados(planilha, envio)
 
 def solicitacoes_impressos(impressos_mes_novo, planilha):
     impressos_mes_novo = impressos_mes_novo[(impressos_mes_novo['tipo_certificado'] == 'Impresso')]
@@ -46,7 +58,6 @@ def solicitacoes_impressos(impressos_mes_novo, planilha):
     impressos_mes_old = impressos_mes_old.rename(columns={0: 'NOME', 1: 'CÓDIGO', 2: 'CURSO', 
                                                         3: 'MÓDULOS', 4: 'INÍCIO', 5: 'FIM',
                                                         6: 'CH', 7: 'CIDADE'})
-    
     impressos_mes_atualizado = pd.concat([impressos_mes_old, impressos_mes_novo], ignore_index=True).drop_duplicates(subset=['NOME', 'CURSO'], keep='first')
     #Atualizar módulos e carga horária.
     impressos_mes_atualizado = adicionar_modulos_ch(impressos_mes_atualizado)
@@ -69,6 +80,8 @@ def exibir_certificados_mes(ano_selecionado, mes_selecionado):
     st.dataframe(solicitacoes_impressos(formulario_forms_filtro, planilha))
     st.title(f"Certificados {mes_selecionado} Digital:")
     st.dataframe(solicitacoes_digitais(formulario_forms_filtro, 'solicitados_digital'))
+    st.title(f"Interesse na formatura:")
+    st.dataframe(adicionar_formatura(formulario_forms_filtro, 'formatura'))
 
 
 st.title("Relatório de Certificados:")
