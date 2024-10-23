@@ -3,6 +3,7 @@ from datetime import time
 from datetime import datetime
 from apis.api_certificados import base_certificados
 from apis.api_certificados import update_base_certificados
+from apis.dicionarios import mes_number
 
 import streamlit as st
 import os
@@ -17,12 +18,12 @@ def solicitacoes_digitais(digitais_mes_novo, planilha):
     digitais_mes_novo.insert(1, 'CÓDIGO', None)
     digitais_mes_old = pd.DataFrame(base_certificados(planilha))
     digitais_mes_old = digitais_mes_old.rename(columns={0: 'NOME', 1: 'CÓDIGO', 2: 'CURSO', 3: 'ASSINATURA_TERMO'})
-    st.dataframe(digitais_mes_novo)
     digitais_mes_atualizado = pd.concat([digitais_mes_old, digitais_mes_novo], ignore_index=True).drop_duplicates(subset=['NOME', 'CURSO'], keep='first')
     digitais_mes_atualizado.fillna('', inplace=True)
     envio = digitais_mes_atualizado.values.tolist()
-    st.title("Planilha dos certificados Digitais")
-    return update_base_certificados(planilha, envio)
+    digitais = pd.DataFrame(update_base_certificados(planilha, envio))
+    digitais = digitais.rename(columns={0: 'NOME', 1: 'CÓDIGO', 2: 'CURSO', 3: 'ASSINATURA_TERMO'})
+    return digitais
 
 def adicionar_modulos_ch(impressos_mes_atualizado):
     grade = pd.DataFrame(base_certificados('GRADE'))
@@ -42,8 +43,9 @@ def adicionar_formatura(formatura_forms, planilha):
     news_formatura_forms = news_formatura_forms.drop(columns=['formatura'])
     news_formatura_forms.fillna('', inplace=True)
     envio = news_formatura_forms.values.tolist()
-    st.title("Planilha dos interessados em formatura:")
-    return update_base_certificados(planilha, envio)
+    formatura = pd.DataFrame(update_base_certificados(planilha, envio))
+    formatura = formatura.rename(columns={0: 'NOME', 1: 'CURSO', 2: 'NÚMERO'})
+    return formatura
 
 def solicitacoes_impressos(impressos_mes_novo, planilha):
     impressos_mes_novo = impressos_mes_novo[(impressos_mes_novo['tipo_certificado'] == 'Impresso')]
@@ -63,19 +65,23 @@ def solicitacoes_impressos(impressos_mes_novo, planilha):
     impressos_mes_atualizado = adicionar_modulos_ch(impressos_mes_atualizado)
     impressos_mes_atualizado.fillna('', inplace=True)
     envio = impressos_mes_atualizado.values.tolist()
-    return update_base_certificados(planilha, envio)
+    impressos = pd.DataFrame(update_base_certificados(planilha, envio))
+    impressos = impressos.rename(columns={0: 'NOME', 1: 'CÓDIGO', 2: 'CURSO', 
+                                                        3: 'MÓDULOS', 4: 'INÍCIO', 5: 'FIM',
+                                                        6: 'CH', 7: 'CIDADE'})
+    return impressos
 
 def exibir_certificados_mes(ano_selecionado, mes_selecionado):
     planilha = str(ano_selecionado) + str(mes_selecionado)
-    st.title("Base de dados completa")
     formulario_forms = pd.DataFrame(base_certificados("principal"))
     formulario_forms = formulario_forms.rename(columns={0: 'data_cadastro', 1: 'email', 2: 'nome', 
                                                         3: 'curso', 4: 'data_fim', 5: 'tipo_certificado',
                                                         6: 'numero', 7: 'formatura', 8: 'requisitos'})
-    st.dataframe(formulario_forms)
     formulario_forms['data_cadastro'] = pd.to_datetime(formulario_forms['data_cadastro'])
     formulario_forms['data_cadastro'] = formulario_forms['data_cadastro'].dt.strftime('%d-%m-%y')
-    formulario_forms_filtro = formulario_forms[(formulario_forms['data_cadastro'] >= f'1/10/{ano_selecionado}') & (formulario_forms['data_cadastro'] <= f'31/10/{ano_selecionado}')]
+    mes = mes_number(mes_selecionado)
+    formulario_forms_filtro = formulario_forms[(formulario_forms['data_cadastro'] >= f'1/{mes}/{ano_selecionado}') & (formulario_forms['data_cadastro'] <= f'31/{mes}/{ano_selecionado}')]
+    st.dataframe(formulario_forms)
     st.title(f"Certificados {mes_selecionado} impressos:")
     st.dataframe(solicitacoes_impressos(formulario_forms_filtro, planilha))
     st.title(f"Certificados {mes_selecionado} Digital:")
