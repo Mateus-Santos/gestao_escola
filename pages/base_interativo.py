@@ -2,8 +2,10 @@ import pandas as pd
 import streamlit as st
 import os
 import sys
+import sqlite3
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))   
+
 
 def relatorio_alunos(base_contratos, base_grades):
     contratos = pd.read_excel(base_contratos)
@@ -28,7 +30,15 @@ def relatorio_alunos(base_contratos, base_grades):
         st.write(f"Dados da planilha {planilha}:")
         st.dataframe(df_grade)
 
+def base_de_dados():
+    conn = sqlite3.connect('./database/interativo/registros3.sqlite')
+    query = "SELECT * FROM alunos"
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+    st.dataframe(df)
+
 try:
     relatorio_alunos('./database/interativo/base_interativo.xls', './database/interativo/grade_interasoft.xlsx')
+    #base_de_dados()
 except FileNotFoundError:
     st.title("Base de dados não cadastrada, deseja realizar o cadastro?")
