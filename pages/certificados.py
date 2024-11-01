@@ -78,10 +78,16 @@ def exibir_certificados_mes(ano_selecionado, mes_selecionado):
                                                         3: 'curso', 4: 'data_fim', 5: 'tipo_certificado',
                                                         6: 'numero', 7: 'formatura', 8: 'requisitos'})
     formulario_forms['data_cadastro'] = pd.to_datetime(formulario_forms['data_cadastro'])
-    formulario_forms['data_cadastro'] = formulario_forms['data_cadastro'].dt.strftime('%d-%m-%y')
     mes = mes_number(mes_selecionado)
-    formulario_forms_filtro = formulario_forms[(formulario_forms['data_cadastro'] >= f'1/{mes}/{ano_selecionado}') & (formulario_forms['data_cadastro'] <= f'31/{mes}/{ano_selecionado}')]
+    formulario_forms_filtro = formulario_forms[
+    (formulario_forms['data_cadastro'].dt.year == ano_selecionado) &
+    (formulario_forms['data_cadastro'].dt.month == mes)
+    ]
+    #formulario_forms_filtro = formulario_forms[(formulario_forms['data_cadastro'].dt.year == ano_selecionado) & (formulario_forms['data_cadastro'].dt.month == mes)]
+    st.title('Formulário')
     st.dataframe(formulario_forms)
+    st.title('Filtro do mês')
+    st.dataframe(formulario_forms_filtro)
     st.title(f"Certificados {mes_selecionado} impressos:")
     st.dataframe(solicitacoes_impressos(formulario_forms_filtro, planilha))
     st.title(f"Certificados {mes_selecionado} Digital:")
