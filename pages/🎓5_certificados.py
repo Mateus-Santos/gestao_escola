@@ -1,13 +1,13 @@
 import pandas as pd
-from datetime import time
 from datetime import datetime
 from apis.api_certificados import base_certificados
 from apis.api_certificados import update_base_certificados
 from apis.dicionarios import mes_number
-
 import streamlit as st
 import os
 import sys
+from docx import Document
+from io import BytesIO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -83,22 +83,20 @@ def exibir_certificados_mes(ano_selecionado, mes_selecionado):
     (formulario_forms['data_cadastro'].dt.year == ano_selecionado) &
     (formulario_forms['data_cadastro'].dt.month == mes)
     ]
-    #formulario_forms_filtro = formulario_forms[(formulario_forms['data_cadastro'].dt.year == ano_selecionado) & (formulario_forms['data_cadastro'].dt.month == mes)]
-    st.title('Formulário')
-    st.dataframe(formulario_forms)
-    st.title('Filtro do mês')
-    st.dataframe(formulario_forms_filtro)
-    st.title(f"Certificados {mes_selecionado} impressos:")
-    st.dataframe(solicitacoes_impressos(formulario_forms_filtro, planilha))
-    st.title(f"Certificados {mes_selecionado} Digital:")
-    st.dataframe(solicitacoes_digitais(formulario_forms_filtro, 'solicitados_digital'))
-    st.title(f"Interesse na formatura:")
-    st.dataframe(adicionar_formatura(formulario_forms_filtro, 'formatura'))
 
+    st.write(f"Certificados {mes_selecionado} impressos:")
+    st.dataframe(solicitacoes_impressos(formulario_forms_filtro, planilha))
+    st.write(f"Certificados {mes_selecionado} Digital:")
+    st.dataframe(solicitacoes_digitais(formulario_forms_filtro, 'solicitados_digital'))
+    st.write(f"Interesse na formatura:")
+    st.dataframe(adicionar_formatura(formulario_forms_filtro, 'formatura'))
+    
 
 st.title("Relatório de Certificados:")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
+col4, col5, col6 = st.columns(3)
+
 anos = [2021, 2022, 2023, 2024, 2025, 2026, 2027]
 
 with col1:
