@@ -1,11 +1,23 @@
 import streamlit as st
 from docx import Document
 from io import BytesIO
-
+from docx2pdf import convert
+import os
+import pythoncom
 
 st.title("Emitir termos para solicitação de certificado Digital:")
 
 col1, col2, col3 = st.columns(3)
+
+def gerar_pdf(local_doc, nome):
+    pythoncom.CoInitialize()
+    try:
+        caminho_docx = f"{local_doc}/{nome}_TERMO_CERTIFICADO_DIGITAL.docx"
+        caminho_pdf = f"{local_doc}/{nome}_TERMO_CERTIFICADO_DIGITAL.pdf"
+        convert(caminho_docx, caminho_pdf)
+        print(f"PDF GERADO COM SUCESSO EM: {caminho_pdf}")
+    finally:
+        pythoncom.CoUninitialize()
 
 def emitir_termo(doc_path):
     with st.form("Meu formulário"):
@@ -27,14 +39,23 @@ def emitir_termo(doc_path):
                 for chave, valor in variaveis.items():
                     if f"{{{{{chave}}}}}" in run.text:
                         run.text = run.text.replace(f"{{{{{chave}}}}}", valor)
+        os.makedirs("./database/modular/termos", exist_ok=True)
+        doc.save(f"./database/modular/termos/{nome}_TERMO_CERTIFICADO_DIGITAL.docx")
+        gerar_pdf(f"./database/modular/termos/", nome)
         buffer = BytesIO()
         doc.save(buffer)
-        buffer.seek(0)        
+        buffer.seek(0)
         st.download_button(
-            label="Baixar Documento",
+            label="Baixar Docx",
             data=buffer,
             file_name=f"{nome}_TERMO_CERTIFICADO_DIGITAL.docx",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+        st.download_button(
+            label="Baixar PDF",
+            data=open(f"./database/modular/termos/{nome}_TERMO_CERTIFICADO_DIGITAL.pdf", "rb").read(),
+            file_name=f"{nome}_TERMO_CERTIFICADO_DIGITAL.pdf",
+            mime="application/pdf"
         )
 
 st.write("Você pode preencher o termo, aqui:")
