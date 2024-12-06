@@ -6,8 +6,6 @@ from apis.dicionarios import mes_number
 import streamlit as st
 import os
 import sys
-from docx import Document
-from io import BytesIO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -77,11 +75,11 @@ def exibir_certificados_mes(ano_selecionado, mes_selecionado):
     formulario_forms = formulario_forms.rename(columns={0: 'data_cadastro', 1: 'email', 2: 'nome', 
                                                         3: 'curso', 4: 'data_fim', 5: 'tipo_certificado',
                                                         6: 'numero', 7: 'formatura', 8: 'requisitos'})
-    formulario_forms['data_cadastro'] = pd.to_datetime(formulario_forms['data_cadastro'])
+    formulario_forms['data_cadastro'] = pd.to_datetime(formulario_forms['data_cadastro'], dayfirst=True)
     mes = mes_number(mes_selecionado)
     formulario_forms_filtro = formulario_forms[
-    (formulario_forms['data_cadastro'].dt.year == ano_selecionado) &
-    (formulario_forms['data_cadastro'].dt.month == mes)
+        (formulario_forms['data_cadastro'].dt.year == ano_selecionado) &
+        (formulario_forms['data_cadastro'].dt.month == mes)
     ]
 
     st.write(f"Certificados {mes_selecionado} impressos:")
