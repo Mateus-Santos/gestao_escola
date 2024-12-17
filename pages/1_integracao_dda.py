@@ -10,7 +10,7 @@ def relatorio_Dda():
     update_database('./database/modular/relatorio_integracao/Resultado.xls', base_relatorio_dda)
     df = pd.read_excel('./database/modular/relatorio_integracao/Resultado.xls')
 
-    filtro_colunas = df[(df['Status'] == 'Ativo') & (df['Pós venda'] == 'Sim') & (df['Participação DDA'] == 'Não')][['Aluno', 'Telefone Celular']]
+    filtro_colunas = df[(df['Status'] == 'Ativo') & (df['Participação DDA'] == 'Não')][['Aluno', 'Telefone Celular']]
     
     csv = filtro_colunas.to_csv(index=False, encoding='utf-8', sep=';')
 
