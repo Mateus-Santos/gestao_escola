@@ -2,11 +2,12 @@ import pandas as pd
 from datetime import time
 import streamlit as st
 import json
-
+from apis.api_quadro import local_Sheets
 from apis.api_quadro import update_quadro
 
 def exibir_vagas():
-    agendamento = pd.read_excel('./database/interativo/vagas/horarios.xlsx', sheet_name='agendamento')
+    agendamento = pd.DataFrame(local_Sheets('agendamentos', '1QMbkbuZNg87ecpQiaRs_rEV7egNm23DNb_ARkJ31YaI'))
+    agendamento = agendamento.rename(columns={0: 'NOME', 1: 'DIA', 2: 'INICIO', 3: 'FIM', 4: 'REPOSICAO', 5: 'DATA'})
     #Transformando no tipo horas.
     agendamento['INICIO'] = pd.to_datetime(agendamento['INICIO'], format='%H:%M:%S').dt.time
     agendamento['FIM'] = pd.to_datetime(agendamento['FIM'], format='%H:%M:%S').dt.time
