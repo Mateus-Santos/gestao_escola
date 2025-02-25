@@ -9,9 +9,18 @@
     - Pandas, Version 2.1.3
 
 # COMANDOS PARA INSTALAÇÃO
-    - pip install streamlit
-    - pip install pandas
+```bash
+pip install streamlit
+```
+```bash
+pip install pandas
+```
+```bash
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
 
 ## APÓS CLONAR O PROJETO:
-    - streamlit run main.py
-    
+
+```bash
+streamlit run main.py
+```
