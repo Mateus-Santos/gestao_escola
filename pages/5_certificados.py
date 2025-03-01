@@ -98,7 +98,7 @@ col4, col5, col6 = st.columns(3)
 anos = [2021, 2022, 2023, 2024, 2025, 2026, 2027]
 
 with col1:
-    mes_selecionado = st.selectbox("Selecione o mês:", ["janeiro", "fevereiro", "marco", "abril", "maio", 
+    mes_selecionado = st.selectbox("Selecione o mês:", ["janeiro", "fevereiro", "março", "abril", "maio", 
                                                     "junho", "julho", "agosto", "setembro", "outubro", 
                                                     "novembro", "dezembro"], index=datetime.now().month-1)
 
