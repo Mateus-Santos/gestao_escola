@@ -53,7 +53,7 @@ def exibir_vagas():
             },
     }
     #Definindo a quantiade de vagas.
-    vagas = 8
+    vagas = 7
     for dia in quadro:
         quadro[dia][time(8, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(8, 0, 0)) & (agendamento['INICIO'] < time(10, 0, 0))]['DIA'].value_counts().sum()
         quadro[dia][time(10, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(10, 0, 0)) & (agendamento['INICIO'] < time(12, 0, 0))]['DIA'].value_counts().sum()

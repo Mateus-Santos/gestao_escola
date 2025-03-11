@@ -1,9 +1,11 @@
-/database
-/Notebooks
 *.xlsx
+*.doc
+*.docx
+*.pdf
 *.xls
 *.csv
 client_secret.json
 token.json
 __pycache__
 /venv
+*.sqlite
