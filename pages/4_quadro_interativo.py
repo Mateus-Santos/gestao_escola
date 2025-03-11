@@ -66,8 +66,6 @@ def exibir_vagas():
             quadro[dia][time(10, 0, 0)] = -1
             quadro[dia][time(13, 0, 0)] = -1
             quadro[dia][time(15, 0, 0)] = -1
-        if dia == 'TER':
-            quadro[dia][time(10, 0, 0)] = -1
         if dia == 'SEX' or dia == 'QUI':
             quadro[dia][time(18, 0, 0)] = -1
         if dia == 'SAB':
