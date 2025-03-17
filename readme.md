@@ -19,6 +19,10 @@ pip install pandas
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 ```
 
+```bash
+pip install matplotlib
+```
+
 ## APÓS CLONAR O PROJETO:
 
 ```bash
