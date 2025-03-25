@@ -19,6 +19,7 @@ def assiduidade_Interativo(local_planilha):
     ranking_frequentes['Frequencia'] = (ranking_frequentes['Presenças'] / ranking_frequentes['Total']) * 100
     ranking_frequentes['Frequencia'] = ranking_frequentes['Frequencia'].replace(['inf%', '-inf%'], '0%')
     ranking_frequentes = ranking_frequentes.sort_values(by='Frequencia', ascending=False)
+    st.dataframe(ranking_frequentes)
     st.title("""
             Relatório de retenção interativo.
         """)
