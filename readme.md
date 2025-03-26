@@ -23,8 +23,14 @@ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-
 pip install matplotlib
 ```
 
+```bash
+pip install python-dotenv
+```
+
 ## APÓS CLONAR O PROJETO:
 
 ```bash
 streamlit run main.py
 ```
+
+

@@ -3,6 +3,8 @@ import streamlit as st
 import os
 import matplotlib.pyplot as plt
 from datetime import datetime
+from apis.api_quadro import local_Sheets
+from dotenv import load_dotenv
 
 # Mensagem Principal.
 st.title("Bem-vindo a tela de relatórios do Instituto Mix.")
@@ -15,28 +17,30 @@ meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho",
          "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
 
 dados = {"Mês": [], "Assiduidade": []}
+load_dotenv()
 
 for ano in range(ano_inicial, ano_atual + 1):
     for mes_idx, mes_nome in enumerate(meses, start=1):
         if ano == ano_atual and mes_idx > mes_atual:
             break
-        arquivo = f"./database/bases de dados/{ano}/{ano}{mes_nome}.xls"
         try:
-            df = pd.read_excel(arquivo)
-            ranking_frequentes = df.sort_values(by='Presenças', ascending=False)
-            ranking_frequentes['Total'] = ranking_frequentes['Presenças'] + ranking_frequentes['Faltas']
-            presencas_mes = ranking_frequentes['Presenças'].sum()
-            total_chamadas = ranking_frequentes['Total'].sum()
+            arquivo = pd.DataFrame(local_Sheets(f'{ano}{mes_nome}', os.getenv("ID_PLANILHA_INTERATIVO")))
+            arquivo = arquivo.rename(columns={0: 'CONTRATO', 1: 'NOME', 2: 'STATUS', 3: 'TEL1', 4: 'Presenças', 5: 'Faltas', 6: 'Reposições'})
+            arquivo['Presenças'] = arquivo['Presenças'].astype(int)
+            arquivo['Faltas'] = arquivo['Faltas'].astype(int)
+            arquivo['Total'] = arquivo['Presenças'] + arquivo['Faltas']
+            presencas_mes = arquivo['Presenças'].sum()
+            total_chamadas = arquivo['Total'].sum()
             assiduidade = (presencas_mes/total_chamadas) * 100
             dados["Mês"].append(f"{mes_nome}/{ano}")
             dados["Assiduidade"].append(round(assiduidade, 2))
 
-        except FileNotFoundError:
-            print(f"Arquivo {arquivo} não encontrado. Pulando...")
+        except Exception as e:
+            print(f"Planilha não encontrada: {ano}{mes_nome}: {e}")
 
 df_final = pd.DataFrame(dados)
 
-st.title("📊 Gráfico de Assiduidade por Mês")
+st.write("📊 Gráfico de Assiduidade por Mês - Interativo")
 
 fig, ax = plt.subplots(figsize=(10, 5))
 ax.plot(df_final["Mês"], df_final["Assiduidade"], marker="o", linestyle="-", color="b", label="assiduidade")

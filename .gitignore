@@ -9,3 +9,4 @@ token.json
 __pycache__
 /venv
 *.sqlite
+.env
