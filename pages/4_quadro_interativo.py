@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 import os
 
 def exibir_vagas():
+    load_dotenv()
+    print("ID da Planilha:", os.getenv("ID_PLANILHA_INTERATIVO"))
+    print("Nome da Planilha:", os.getenv("PLANILHA_AGENDAMENTOS_INTERATIVO"))
     agendamento = pd.DataFrame(local_Sheets(os.getenv("PLANILHA_AGENDAMENTOS_INTERATIVO"), os.getenv("ID_PLANILHA_INTERATIVO")))
     agendamento = agendamento.rename(columns={0: 'NOME', 1: 'DIA', 2: 'INICIO', 3: 'FIM', 4: 'REPOSICAO', 5: 'DATA'})
     #Transformando no tipo horas.
