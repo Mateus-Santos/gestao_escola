@@ -3,11 +3,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import os
 import sys
+from dotenv import load_dotenv
 from datetime import datetime
-
 from main import update_database
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from apis.api_quadro import local_Sheets
 
 def assiduidade_Interativo(local_planilha):
     assiduidade = pd.read_excel(local_planilha)
@@ -65,31 +64,76 @@ def faltantes_retencao(local_arquivo):
     )
     st.dataframe(faltantes, hide_index=True)
 
-st.title("Atualize a base de dados do relatório de assiduidade interativo.")
+@st.cache_data(ttl=600)
+def grafico_assiduidade():
+    ano_inicial = 2022
+    hoje = datetime.today()
+    ano_atual, mes_atual = hoje.year, hoje.month
+    meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", 
+            "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
 
-col1, col2 = st.columns(2)
-anos = [2021, 2022, 2023, 2024, 2025, 2026, 2027]
+    dados = {"Mês": [], "Assiduidade": []}
+    
+    for ano in range(ano_inicial, ano_atual + 1):
+        for mes_idx, mes_nome in enumerate(meses, start=1):
+            if ano == ano_atual and mes_idx > mes_atual:
+                break
+            try:
+                arquivo = pd.DataFrame(local_Sheets(f'{ano}{mes_nome}', os.getenv("ID_PLANILHA_INTERATIVO")))
+                arquivo = arquivo.rename(columns={0: 'CONTRATO', 1: 'NOME', 2: 'STATUS', 3: 'TEL1', 4: 'Presenças', 5: 'Faltas', 6: 'Reposições'})
+                arquivo['Presenças'] = arquivo['Presenças'].astype(int)
+                arquivo['Faltas'] = arquivo['Faltas'].astype(int)
+                arquivo['Total'] = arquivo['Presenças'] + arquivo['Faltas']
+                presencas_mes = arquivo['Presenças'].sum()
+                total_chamadas = arquivo['Total'].sum()
+                assiduidade = (presencas_mes/total_chamadas) * 100
+                dados["Mês"].append(f"{mes_nome}/{ano}")
+                dados["Assiduidade"].append(round(assiduidade, 2))
 
-with col1:
-    mes_selecionado = st.selectbox("Selecione o mês:", ["janeiro", "fevereiro", "marco", "abril", "maio", 
-                                                    "junho", "julho", "agosto", "setembro", "outubro", 
-                                                    "novembro", "dezembro"], index=datetime.now().month-1)
+            except Exception as e:
+                print(f"Planilha não encontrada: {ano}{mes_nome}: {e}")
 
-if datetime.now().year in anos:
-    ano_atual = anos.index(datetime.now().year)
-else:
-    ano_atual = None
+    df_final = pd.DataFrame(dados)
 
-with col2:
-    ano = st.selectbox("Selecione o ano:", anos, index=ano_atual)
+    st.write("📊 Gráfico de Assiduidade por Mês - Interativo")
 
-base_assiduidade_interativo = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="base_assiduidade_interativo")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(df_final["Mês"], df_final["Assiduidade"], marker="o", linestyle="-", color="b", label="assiduidade")
 
-local_planilha = f'./database/interativo/retencao/{ano}{mes_selecionado}.xls'
-update_database(local_planilha, base_assiduidade_interativo)
+    for i, txt in enumerate(df_final["Assiduidade"]):
+        ax.text(i, txt + 1, f"{txt}%", ha="center", fontsize=10, fontweight="bold", color="black")
+    ax.set_xlabel("Mês")
+    ax.set_ylabel("Assiduidade (%)")
+    ax.set_title("Assiduidade por Mês")
+    ax.legend()
+    ax.grid(True)
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
 
 try:
+    #Estrutura da página
+    st.title("Atualize a base de dados do relatório de assiduidade interativo.")
+    col1, col2 = st.columns(2)
+    anos = [2021, 2022, 2023, 2024, 2025, 2026, 2027]
+    with col1:
+        mes_selecionado = st.selectbox("Selecione o mês:", ["janeiro", "fevereiro", "marco", "abril", "maio", 
+                                                        "junho", "julho", "agosto", "setembro", "outubro", 
+                                                        "novembro", "dezembro"], index=datetime.now().month-1)
+    if datetime.now().year in anos:
+        ano_atual = anos.index(datetime.now().year)
+    else:
+        ano_atual = None
+    with col2:
+        ano = st.selectbox("Selecione o ano:", anos, index=ano_atual)
+    base_assiduidade_interativo = st.file_uploader("Escolha um arquivo Excel", type=['xlsx', 'xls'], key="base_assiduidade_interativo")
+    local_planilha = f'./database/interativo/retencao/{ano}{mes_selecionado}.xls'
+    update_database(local_planilha, base_assiduidade_interativo)
+
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
+    load_dotenv(dotenv_path)
     assiduidade_Interativo(local_planilha)
     faltantes_retencao(local_planilha)
+    grafico_assiduidade()
 except FileNotFoundError:
     st.title("Base de dados não cadastrada, deseja realizar o cadastro?")
