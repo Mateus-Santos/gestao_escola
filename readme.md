@@ -27,6 +27,16 @@ pip install matplotlib
 pip install python-dotenv
 ```
 
+```bash
+pip install webdriver-manager
+```
+
+<p>Se for necessário, atualize o selenium</p>
+
+```bash
+pip install --upgrade selenium
+```bash
+
 ## APÓS CLONAR O PROJETO:
 
 ```bash

@@ -64,7 +64,8 @@ def faltantes_retencao(local_arquivo):
     )
     st.dataframe(faltantes, hide_index=True)
 
-@st.cache_data(ttl=600)
+#Atualização é realziada a cada 2 dias.
+@st.cache_data(ttl=172800)
 def grafico_assiduidade():
     ano_inicial = 2022
     hoje = datetime.today()
