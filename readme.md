@@ -35,7 +35,11 @@ pip install webdriver-manager
 
 ```bash
 pip install --upgrade selenium
+```
+
 ```bash
+pip install openpyxl --upgrade
+```
 
 ## APÓS CLONAR O PROJETO:
 
