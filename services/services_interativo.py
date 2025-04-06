@@ -39,6 +39,7 @@ def gerar_relatorio_assiduidade(local_planilha):
     st.pyplot(fig)
     return ranking_frequentes
 
+#Gerar lista de alunos com muitas faltas consecutivas durante mês.
 def listar_faltantes_retencao(local_arquivo):
     assiduidade = pd.read_excel(local_arquivo)
     assiduidade = assiduidade.drop(columns=['Contato Emergência 1', 'Contato Emergência 2', 
