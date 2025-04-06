@@ -5,7 +5,7 @@ import os, sys, json
 from dotenv import load_dotenv
 from datetime import datetime, time
 from utils.update_database import update_database
-from apis.api_quadro import local_Sheets, update_quadro
+from apis.api_sheets import local_Sheets, update_sheets
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
@@ -48,10 +48,9 @@ def listar_faltantes_retencao(local_arquivo):
     faltantes = faltantes.drop(columns=['Status'])
     csv = faltantes.to_csv(index=False, encoding='utf-8', sep=';')
     return [faltantes, csv]
-    
 
-#API só funcionará a cada 2 dias.
-@st.cache_data(ttl=172800)
+#API só funcionará a cada 7 dias.
+@st.cache_data(ttl=604800)
 def plotar_grafico_assiduidade():
     ano_inicial = 2022
     hoje = datetime.today()
@@ -66,7 +65,7 @@ def plotar_grafico_assiduidade():
             if ano == ano_atual and mes_idx > mes_atual:
                 break
             try:
-                arquivo = pd.DataFrame(local_Sheets(f'{ano}{mes_nome}', os.getenv("ID_PLANILHA_INTERATIVO")))
+                arquivo = pd.DataFrame(local_Sheets(f'{ano}{mes_nome}!A2:L1000', os.getenv("ID_PLANILHA_INTERATIVO")))
                 arquivo = arquivo.rename(columns={0: 'CONTRATO', 1: 'NOME', 2: 'STATUS', 3: 'TEL1', 4: 'Presenças', 5: 'Faltas', 6: 'Reposições'})
                 arquivo['Presenças'] = arquivo['Presenças'].astype(int)
                 arquivo['Faltas'] = arquivo['Faltas'].astype(int)
@@ -96,100 +95,62 @@ def plotar_grafico_assiduidade():
     st.pyplot(fig)
 
 # Função para exibir vagas no interativo.
-
 def exibir_vagas():
-    agendamento = pd.DataFrame(local_Sheets(os.getenv("PLANILHA_AGENDAMENTOS_INTERATIVO"), os.getenv("ID_PLANILHA_INTERATIVO")))
-    agendamento = agendamento.rename(columns={0: 'NOME', 1: 'DIA', 2: 'INICIO', 3: 'FIM', 4: 'REPOSICAO', 5: 'DATA'})
-    #Transformando no tipo horas.
+    # Carrega os dados da planilha
+    agendamento = pd.DataFrame(local_Sheets(
+        os.getenv("PLANILHA_AGENDAMENTOS_INTERATIVO"),
+        os.getenv("ID_PLANILHA_INTERATIVO")
+    ))
+    # Renomeia colunas
+    agendamento.columns = ['NOME', 'DIA', 'INICIO', 'FIM', 'REPOSICAO', 'DATA']
+    # Converte horários para datetime.time
     agendamento['INICIO'] = pd.to_datetime(agendamento['INICIO'], format='%H:%M:%S').dt.time
     agendamento['FIM'] = pd.to_datetime(agendamento['FIM'], format='%H:%M:%S').dt.time
-    #Criando quadro Fixo para visualização.
-    quadro = {
-        'SEG': {
-            time(8, 0, 0): '',
-            time(10, 0, 0): '',
-            time(13, 0, 0): '',
-            time(15, 0, 0): '',
-            time(18, 0, 0): '',
-            },
-        'TER': {
-            time(8, 0, 0): '',
-            time(10, 0, 0): '',
-            time(13, 0, 0): '',
-            time(15, 0, 0): '',
-            time(18, 0, 0): '',
-            },
-        'QUA': {
-            time(8, 0, 0): '',
-            time(10, 0, 0): '',
-            time(13, 0, 0): '',
-            time(15, 0, 0): '',
-            time(18, 0, 0): '',
-            },
-        'QUI': {
-            time(8, 0, 0): '',
-            time(10, 0, 0): '',
-            time(13, 0, 0): '',
-            time(15, 0, 0): '',
-            },
-        'SEX': {
-            time(8, 0, 0): '',
-            time(10, 0, 0): '',
-            time(13, 0, 0): '',
-            time(15, 0, 0): '',
-            },
-        'SAB': {
-            time(8, 0, 0): '',
-            time(10, 0, 0): '',
-            },
+    # Define horários fixos
+    horarios = [
+        (time(8, 0), time(10, 0)),
+        (time(10, 0), time(12, 0)),
+        (time(13, 0), time(15, 0)),
+        (time(15, 0), time(17, 0)),
+        (time(18, 0), time(20, 0)),
+    ]
+    dias_semana = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB']
+    vagas_por_horario = 8
+    # Define horários disponíveis por dia
+    quadro = {dia: {inicio: vagas_por_horario for inicio, _ in horarios} for dia in dias_semana}
+    # Mapa de indisponibilidades por dia
+    indisponiveis = {
+        'SEX': [time(8, 0), time(10, 0), time(13, 0), time(15, 0), time(18, 0)],
+        'QUI': [time(18, 0)],
+        'SAB': [time(13, 0), time(15, 0), time(18, 0)],
     }
-    #Definindo a quantiade de vagas.
-    vagas = 8
-    for dia in quadro:
-        quadro[dia][time(8, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(8, 0, 0)) & (agendamento['INICIO'] < time(10, 0, 0))]['DIA'].value_counts().sum()
-        quadro[dia][time(10, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(10, 0, 0)) & (agendamento['INICIO'] < time(12, 0, 0))]['DIA'].value_counts().sum()
-        quadro[dia][time(13, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(13, 0, 0)) & (agendamento['INICIO'] < time(15, 0, 0))]['DIA'].value_counts().sum()
-        quadro[dia][time(15, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(15, 0, 0)) & (agendamento['INICIO'] < time(17, 0, 0))]['DIA'].value_counts().sum()
-        quadro[dia][time(18, 0, 0)] = vagas - agendamento[((agendamento['DIA'] == dia)) & (agendamento['INICIO'] >= time(18, 0, 0)) & (agendamento['INICIO'] < time(20, 0, 0))]['DIA'].value_counts().sum()
-        #Definindo dias que não estão disponíveis:
-        if dia == 'SEX':
-            quadro[dia][time(8, 0, 0)] = -1
-            quadro[dia][time(10, 0, 0)] = -1
-            quadro[dia][time(13, 0, 0)] = -1
-            quadro[dia][time(15, 0, 0)] = -1
-        if dia == 'SEX' or dia == 'QUI':
-            quadro[dia][time(18, 0, 0)] = -1
-        if dia == 'SAB':
-            quadro[dia][time(13, 0, 0)] = -1
-            quadro[dia][time(15, 0, 0)] = -1
-            quadro[dia][time(18, 0, 0)] = -1
 
-    inicio = [
-        time(8, 0, 0),
-        time(10, 0, 0),
-        time(13, 0, 0),
-        time(15, 0, 0),
-        time(18, 0, 0),
-    ]
+    for dia in dias_semana:
+        for inicio, fim in horarios:
+            if inicio in quadro[dia]:
+                count = agendamento[
+                    (agendamento['DIA'] == dia) &
+                    (agendamento['INICIO'] >= inicio) &
+                    (agendamento['INICIO'] < fim)
+                ].shape[0]
+                quadro[dia][inicio] = vagas_por_horario - count
 
-    fim = [
-        time(10, 0, 0),
-        time(12, 0, 0),
-        time(15, 0, 0),
-        time(17, 0, 0),
-        time(20, 0, 0),
-    ]
+        # Marca horários indisponíveis como -1
+        for hora_indisp in indisponiveis.get(dia, []):
+            if hora_indisp in quadro[dia]:
+                quadro[dia][hora_indisp] = -1
 
-    new_quadro = pd.DataFrame(quadro)
+    df_quadro = pd.DataFrame(quadro)
+    df_quadro['HORÁRIO INÍCIO'] = [h[0] for h in horarios]
+    df_quadro['HORÁRIO FIM'] = [h[1] for h in horarios]
 
-    new_quadro['HORÁRIO INÍCIO'] = inicio
-    new_quadro['HORÁRIO FIM'] = fim
-    colunas = new_quadro.columns.tolist()
-    # Mover as duas últimas colunas para o início
-    nova_ordem_colunas = colunas[-2:] + colunas[:-2]
-    quadro = new_quadro[nova_ordem_colunas]
-    quadro['HORÁRIO INÍCIO'] = quadro['HORÁRIO INÍCIO'].apply(lambda x: x.strftime('%H:%M:%S'))
-    quadro['HORÁRIO FIM'] = quadro['HORÁRIO FIM'].apply(lambda x: x.strftime('%H:%M:%S'))
-    envio = quadro.values.tolist()
-    update_quadro(envio)
-    return quadro
+    # Reorganiza colunas para que horários fiquem na frente
+    colunas = ['HORÁRIO INÍCIO', 'HORÁRIO FIM'] + dias_semana
+    df_quadro = df_quadro[colunas]
+
+    # Formata horários
+    df_quadro['HORÁRIO INÍCIO'] = df_quadro['HORÁRIO INÍCIO'].apply(lambda x: x.strftime('%H:%M:%S'))
+    df_quadro['HORÁRIO FIM'] = df_quadro['HORÁRIO FIM'].apply(lambda x: x.strftime('%H:%M:%S'))
+    update_sheets(df_quadro.values.tolist(), os.getenv("PLANILHA_VAGAS_INTERATIVO"), os.getenv("ID_PLANILHA_INTERATIVO"))
+
+    return df_quadro

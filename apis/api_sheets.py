@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
-def update_quadro(quadro):
+def update_sheets(data_update_sheets, planilha, id_planilha):
   creds = None
   if os.path.exists("token.json"):
     creds = Credentials.from_authorized_user_file("token.json", SCOPES)
@@ -30,10 +30,10 @@ def update_quadro(quadro):
 
   # Call the Sheets API
   sheet = service.spreadsheets()
-  result = sheet.values().update(spreadsheetId='1QMbkbuZNg87ecpQiaRs_rEV7egNm23DNb_ARkJ31YaI', 
-                                  range='vagas!A3:H7', valueInputOption="USER_ENTERED",
-                                  body={"values": quadro}).execute()
-  return quadro
+  result = sheet.values().update(spreadsheetId=id_planilha, 
+                                  range=planilha, valueInputOption="USER_ENTERED",
+                                  body={"values": data_update_sheets}).execute()
+  return data_update_sheets
 
 def local_Sheets(planilha, id_planilha):
   creds = None
@@ -56,6 +56,6 @@ def local_Sheets(planilha, id_planilha):
 
   # Call the Sheets API
   sheet = service.spreadsheets()
-  result = (sheet.values().get(spreadsheetId=id_planilha, range=f'{planilha}!A2:AA1000').execute())
+  result = (sheet.values().get(spreadsheetId=id_planilha, range=planilha).execute())
   values = result.get("values", [])
   return values
