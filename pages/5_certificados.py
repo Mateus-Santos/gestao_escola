@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime
 from apis.api_certificados import base_certificados
 from apis.api_certificados import update_base_certificados
-from apis.dicionarios import mes_number
+from utils.meses import mes_numero
 import streamlit as st
 import os
 import sys
@@ -76,7 +76,7 @@ def exibir_certificados_mes(ano_selecionado, mes_selecionado):
                                                         3: 'curso', 4: 'data_fim', 5: 'tipo_certificado',
                                                         6: 'numero', 7: 'formatura', 8: 'requisitos'})
     formulario_forms['data_cadastro'] = pd.to_datetime(formulario_forms['data_cadastro'], dayfirst=True)
-    mes = mes_number(mes_selecionado)
+    mes = mes_numero(mes_selecionado)
     formulario_forms_filtro = formulario_forms[
         (formulario_forms['data_cadastro'].dt.year == ano_selecionado) &
         (formulario_forms['data_cadastro'].dt.month == mes)

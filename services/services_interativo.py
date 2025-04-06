@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
 load_dotenv(dotenv_path)
 
-def assiduidade_Interativo(local_planilha):
+def gerar_relatorio_assiduidade(local_planilha):
     assiduidade = pd.read_excel(local_planilha)
     assiduidade = assiduidade.drop(columns=['Contato Emergência 1', 'Contato Emergência 2', 
                                             'Contato Emergência 3', 'Contato Emergência 4', 
@@ -39,7 +39,7 @@ def assiduidade_Interativo(local_planilha):
     st.pyplot(fig)
     return ranking_frequentes
 
-def faltantes_retencao(local_arquivo):
+def listar_faltantes_retencao(local_arquivo):
     assiduidade = pd.read_excel(local_arquivo)
     assiduidade = assiduidade.drop(columns=['Contato Emergência 1', 'Contato Emergência 2', 
                                             'Contato Emergência 3', 'Contato Emergência 4', 
@@ -50,9 +50,9 @@ def faltantes_retencao(local_arquivo):
     return [faltantes, csv]
     
 
-#Atualização é realziada a cada 2 dias.
+#API só funcionará a cada 2 dias.
 @st.cache_data(ttl=172800)
-def grafico_assiduidade():
+def plotar_grafico_assiduidade():
     ano_inicial = 2022
     hoje = datetime.today()
     ano_atual, mes_atual = hoje.year, hoje.month
