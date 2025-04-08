@@ -155,3 +155,14 @@ def exibir_vagas():
     update_sheets(df_quadro.values.tolist(), os.getenv("PLANILHA_VAGAS_INTERATIVO"), os.getenv("ID_PLANILHA_INTERATIVO"))
 
     return df_quadro
+
+def pendente_reposicoes():
+    agendamento = pd.DataFrame(local_Sheets(
+        os.getenv("PLANILHA_AGENDAMENTOS_INTERATIVO"),
+        os.getenv("ID_PLANILHA_INTERATIVO")
+    ))
+    agendamento.columns = ['NOME', 'DIA', 'INICIO', 'FIM', 'REPOSICAO', 'DATA']
+    agendamento['DATA'] = pd.to_datetime(agendamento['DATA'], errors='coerce')
+    data_atual = pd.to_datetime(datetime.now().date())
+    df_passadas = agendamento[agendamento['DATA'] < data_atual]
+    return df_passadas

@@ -1,11 +1,13 @@
 import pandas as pd
 import streamlit as st
 from datetime import datetime
-from services.services_interativo import update_database, gerar_relatorio_assiduidade, listar_faltantes_retencao, plotar_grafico_assiduidade, exibir_vagas
+from services.services_interativo import update_database, gerar_relatorio_assiduidade, listar_faltantes_retencao, plotar_grafico_assiduidade, exibir_vagas, pendente_reposicoes
 
 def carregar_vagas():
     st.title("Quadro de Vagas - Interativo")
     st.dataframe(exibir_vagas(), hide_index=True)
+    st.write("PENDÊNCIAS DE LANÇAMENTO - REPOSIÇÕES:")
+    st.dataframe(pendente_reposicoes(), hide_index=True)
 
 #Estrutura da página
 def main():
