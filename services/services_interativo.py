@@ -162,7 +162,9 @@ def pendente_reposicoes():
         os.getenv("ID_PLANILHA_INTERATIVO")
     ))
     agendamento.columns = ['NOME', 'DIA', 'INICIO', 'FIM', 'REPOSICAO', 'DATA']
-    agendamento['DATA'] = pd.to_datetime(agendamento['DATA'], errors='coerce')
-    data_atual = pd.to_datetime(datetime.now().date())
+    agendamento['DATA'] = pd.to_datetime(agendamento['DATA'], format="%d/%m/%Y", errors='coerce')
+    agendamento = agendamento[agendamento['DATA'].notna()]
+    data_atual = pd.Timestamp.today().normalize()
+    st.write(data_atual)
     df_passadas = agendamento[agendamento['DATA'] < data_atual]
     return df_passadas
