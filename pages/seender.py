@@ -44,6 +44,7 @@ for i, mensagem in enumerate(contatos_df['Mensagem']):
         )
         time.sleep(2)
         campo_mensagem.click()
+        time.sleep(1)
         campo_mensagem.send_keys(Keys.ENTER)
         st.success(f"Mensagem enviada para {pessoa} ({numero})")
         time.sleep(10)
