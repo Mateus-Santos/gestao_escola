@@ -34,7 +34,7 @@ except TimeoutException:
 for i, mensagem in enumerate(contatos_df['Mensagem']):
     pessoa = contatos_df.loc[i, "Pessoa"]
     numero = contatos_df.loc[i, "Número"]
-    texto = urllib.parse.quote(f"{mensagem}")
+    texto = urllib.parse.quote(f"Olá, eu falo com a responsável pelo curso de {pessoa}? {mensagem}")
     link = f"https://web.whatsapp.com/send?phone={numero}&text={texto}"
     navegador.get(link)
 
