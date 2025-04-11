@@ -42,12 +42,12 @@ for i, mensagem in enumerate(contatos_df['Mensagem']):
         campo_mensagem = WebDriverWait(navegador, 40).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="main"]/footer/div[1]/div/span/div/div[2]/div/div[3]/div[1]/p'))
         )
-        time.sleep(2)
+        time.sleep(5)
         campo_mensagem.click()
-        time.sleep(1)
+        time.sleep(7)
         campo_mensagem.send_keys(Keys.ENTER)
         st.success(f"Mensagem enviada para {pessoa} ({numero})")
-        time.sleep(10)
+        time.sleep(3)
     except TimeoutException:
         st.error(f"Erro: Não foi possível enviar a mensagem para {pessoa} ({numero}).")
         continue

@@ -116,7 +116,7 @@ def exibir_vagas():
         (time(18, 0), time(20, 0)),
     ]
     dias_semana = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB']
-    vagas_por_horario = 8
+    vagas_por_horario = 9
     # Define horários disponíveis por dia
     quadro = {dia: {inicio: vagas_por_horario for inicio, _ in horarios} for dia in dias_semana}
     # Mapa de indisponibilidades por dia
